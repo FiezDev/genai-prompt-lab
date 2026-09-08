@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Lab — ใช้ AI ทำอะไรดี | การบ้าน 6 แง่</title>
+<meta name="description" content="การบ้านวิชา GenAI 1: ฝึกใช้ Prompt ใน 6 แง่ — ภาพ AI, Desmos, Mermaid, LaTeX, NotebookLM และเว็บไซต์ GitHub">
+<style>
+:root{
+  --bg:#0f0e1d; --bg2:#17162b; --card:#1d1b33; --card2:#232040;
+  --ink:#e8e6f5; --muted:#9d99c0; --amber:#f5b942; --amber2:#f59e0b;
+  --indigo:#818cf8; --green:#4ade80; --line:#312e56;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:"Leelawadee UI","Noto Sans Thai","Sarabun",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.75}
+a{color:var(--amber);text-decoration:none}
+a:hover{text-decoration:underline}
+img{max-width:100%;display:block}
+
+/* ---------- top menu ---------- */
+header{position:sticky;top:0;z-index:50;background:rgba(15,14,29,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.nav{max-width:1080px;margin:0 auto;display:flex;align-items:center;gap:4px;padding:10px 20px;flex-wrap:wrap}
+.brand{font-weight:700;color:var(--amber);margin-right:auto;font-size:1.05rem;white-space:nowrap}
+.brand span{color:var(--ink);font-weight:400}
+.nav a{padding:7px 13px;border-radius:99px;color:var(--muted);font-size:.92rem;white-space:nowrap}
+.nav a:hover{color:var(--ink);background:var(--card);text-decoration:none}
+.nav a.active{background:var(--amber);color:#1a1205;font-weight:700}
+
+/* ---------- sections ---------- */
+main{max-width:1080px;margin:0 auto;padding:0 20px 90px}
+section.page{display:none;animation:fade .35s ease}
+section.page.show{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.hero{padding:72px 0 48px;text-align:left;background:radial-gradient(1200px 500px at 20% -10%,rgba(245,158,11,.13),transparent 60%),radial-gradient(900px 420px at 90% 0%,rgba(129,140,248,.12),transparent 55%)}
+.kicker{color:var(--amber);font-weight:700;letter-spacing:.22em;font-size:.8rem;text-transform:uppercase}
+h1{font-size:clamp(1.9rem,4.5vw,3.1rem);line-height:1.25;margin:.35em 0 .3em}
+h1 em{font-style:normal;color:var(--amber)}
+.sub{color:var(--muted);max-width:46rem;font-size:1.05rem}
+.meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.chip{background:var(--card);border:1px solid var(--line);border-radius:99px;padding:5px 14px;font-size:.85rem;color:var(--muted)}
+.chip b{color:var(--ink)}
+
+.grid6{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:38px 0 8px}
+.gcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;cursor:pointer;transition:.2s}
+.gcard:hover{border-color:var(--amber);transform:translateY(-2px)}
+.gcard .no{font-size:.72rem;color:var(--amber);font-weight:700;letter-spacing:.15em}
+.gcard .t{font-weight:700;margin-top:4px}
+.gcard .d{font-size:.8rem;color:var(--muted);margin-top:2px}
+
+/* section layout */
+.sec-head{padding:52px 0 8px}
+.sec-head .no{color:var(--amber);font-weight:700;letter-spacing:.2em;font-size:.8rem}
+h2{font-size:clamp(1.5rem,3vw,2.1rem);margin:.2em 0}
+.sec-sub{color:var(--muted);max-width:44rem}
+.flow{display:flex;flex-direction:column;gap:26px;margin-top:30px}
+.step-label{display:inline-flex;align-items:center;gap:8px;font-size:.78rem;font-weight:700;letter-spacing:.14em;color:var(--amber);text-transform:uppercase;margin-bottom:10px}
+.step-label::before{content:"";width:22px;height:2px;background:var(--amber)}
+.step-label.v2{color:var(--green)}
+.step-label.v2::before{background:var(--green)}
+
+.prompt{background:#12101f;border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:12px;padding:18px 20px;position:relative}
+.prompt.v2{border-left-color:var(--green)}
+.prompt .who{font-size:.78rem;color:var(--muted);margin-bottom:6px}
+.prompt .txt{font-size:1.02rem;white-space:pre-wrap}
+.tag{position:absolute;top:-10px;right:14px;background:var(--card2);border:1px solid var(--line);border-radius:99px;font-size:.7rem;padding:2px 10px;color:var(--muted)}
+
+.result{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+.result h4{font-size:.95rem;color:var(--muted);font-weight:600;margin-bottom:12px}
+.figure{background:#0b0a16;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.figure img{width:100%;height:auto}
+.cap{font-size:.82rem;color:var(--muted);margin-top:10px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:720px){.two{grid-template-columns:1fr}}
+
+.dialog{display:flex;flex-direction:column;gap:10px}
+.bubble{max-width:85%;padding:12px 16px;border-radius:14px;font-size:.95rem}
+.bubble.me{align-self:flex-end;background:#3a2f10;border:1px solid #6b5416;border-bottom-right-radius:4px}
+.bubble.ai{align-self:flex-start;background:var(--card2);border:1px solid var(--line);border-bottom-left-radius:4px;color:var(--muted)}
+.bubble .who{font-size:.7rem;opacity:.75;display:block;margin-bottom:3px}
+
+.reflect{background:linear-gradient(135deg,#1c1930,#221a2e);border:1px solid #4b3a63;border-radius:14px;padding:22px}
+.reflect h3{color:#d8b4fe;font-size:1.05rem;margin-bottom:10px}
+.reflect ul{margin:8px 0 0 20px;display:flex;flex-direction:column;gap:6px}
+.reflect .vs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.reflect .vs div{background:rgba(0,0,0,.25);border-radius:10px;padding:14px;font-size:.9rem}
+.reflect .vs b:first-child{color:var(--muted)}
+@media(max-width:720px){.reflect .vs{grid-template-columns:1fr}}
+
+.code{background:#0b0a16;border:1px solid var(--line);border-radius:10px;padding:16px;font-family:"Cascadia Code",Consolas,monospace;font-size:.83rem;overflow-x:auto;white-space:pre;color:#c9d1e3;line-height:1.6}
+code.inline{background:#0b0a16;border:1px solid var(--line);padding:2px 7px;border-radius:6px;font-size:.85em}
+
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.btn{display:inline-block;background:var(--amber);color:#1a1205;font-weight:700;padding:9px 18px;border-radius:99px;font-size:.9rem}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.btn:hover{text-decoration:none;filter:brightness(1.07)}
+
+iframe.deck{width:100%;height:560px;border:1px solid var(--line);border-radius:12px;background:#fff}
+
+.checklist{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:24px}
+.check{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+.check b{color:var(--green)}
+
+footer{border-top:1px solid var(--line);margin-top:60px;padding:34px 20px;text-align:center;color:var(--muted);font-size:.85rem}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--amber);color:#1a1205;font-weight:700;padding:10px 22px;border-radius:99px;transition:.3s;opacity:0;z-index:99}
+.toast.show{transform:translateX(-50%);opacity:1}
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="nav" id="nav">
+    <div class="brand">⚡ Prompt Lab <span>· การบ้าน 6 แง่</span></div>
+    <a href="#home" data-sec="home" class="active">หน้าแรก</a>
+    <a href="#s1" data-sec="s1">① ภาพ AI</a>
+    <a href="#s2" data-sec="s2">② Desmos</a>
+    <a href="#s3" data-sec="s3">③ Mermaid</a>
+    <a href="#s4" data-sec="s4">④ LaTeX</a>
+    <a href="#s5" data-sec="s5">⑤ NotebookLM</a>
+    <a href="#s6" data-sec="s6">⑥ เว็บ/GitHub</a>
+    <a href="#guide" data-sec="guide">🧩 Canva MCP</a>
+  </nav>
+</header>
+
+<main>
+
+<!-- ================= HOME ================= -->
+<section class="page show" id="home">
+  <div class="hero">
+    <div class="kicker">GenAI 1 · การบ้านฝึกใช้ Prompt · ส่ง 13 ก.ย. 2569</div>
+    <h1>พลังของ Prompt:<br>จาก <em>Zero-shot</em> สู่ <em>Few-shot</em> ใน 6 แง่</h1>
+    <p class="sub">การบ้านชิ้นนี้ทดลองเขียนพรอมป์ 2 รอบใน 6 เครื่องมือ — เริ่มจากพรอมป์แรกแบบ zero-shot สั้น ๆ
+    ดูผลลัพธ์ แล้วถาม-ตอบเพิ่มรายละเอียดจนได้พรอมป์ใหม่แบบ few-shot พร้อมสะท้อนการเรียนรู้ว่าอะไรเปลี่ยนไปอย่างไร
+    ทุกแง่ใช้ธีมเดียวกันคือ <b>"การเรียนรู้กับ AI"</b> เพื่อให้งานทั้งหมดต่อเนื่องเป็นชิ้นเดียว</p>
+    <div class="meta">
+      <div class="chip">👤 <b>อิทธิพล วงศ์อภัย</b></div>
+      <div class="chip">📚 GenAI 1 · Week 4 พลังของ Prompt</div>
+      <div class="chip">🗓 8 กันยายน 2569</div>
+    </div>
+  </div>
+
+  <div class="grid6">
+    <div class="gcard" onclick="go('s1')"><div class="no">แง่ที่ 1</div><div class="t">ภาพด้วย AI</div><div class="d">Higgsfield</div></div>
+    <div class="gcard" onclick="go('s2')"><div class="no">แง่ที่ 2</div><div class="t">กราฟคณิต</div><div class="d">Desmos</div></div>
+    <div class="gcard" onclick="go('s3')"><div class="no">แง่ที่ 3</div><div class="t">ไดอะแกรม</div><div class="d">Mermaid</div></div>
+    <div class="gcard" onclick="go('s4')"><div class="no">แง่ที่ 4</div><div class="t">บทความ</div><div class="d">LaTeX</div></div>
+    <div class="gcard" onclick="go('s5')"><div class="no">แง่ที่ 5</div><div class="t">สไลด์สรุป</div><div class="d">NotebookLM</div></div>
+    <div class="gcard" onclick="go('s6')"><div class="no">แง่ที่ 6</div><div class="t">เว็บไซต์</div><div class="d">GitHub Pages</div></div>
+  </div>
+
+  <div class="checklist">
+    <div class="check"><b>✓ โครงของแต่ละแง่</b><br>พรอมป์แรก (zero-shot) → ผลลัพธ์แรก → ถาม-ตอบเพิ่มรายละเอียด → พรอมป์ใหม่ (few-shot) → ผลลัพธ์ใหม่ → สะท้อนการเรียนรู้</div>
+    <div class="check"><b>✓ โบนัสพิเศษ</b><br>เว็บไซต์นี้เป็นแง่ที่ 6 และรวมงานแง่ 1–5 ไว้ครบในที่เดียว ต่อเนื่องด้วยธีมเดียวกัน ลงบน GitHub Pages</div>
+    <div class="check"><b>✓ เครื่องมือจริงทั้งหมด</b><br>Higgsfield AI · Desmos · Mermaid · LaTeX (Tectonic/XeLaTeX) · NotebookLM เวิร์กโฟลว์ · GitHub Pages</div>
+  </div>
+</section>
+
+<!-- ================= S1 IMAGE ================= -->
+<section class="page" id="s1">
+  <div class="sec-head">
+    <div class="no">แง่ที่ 1 / 6</div>
+    <h2>การสร้างรูปด้วย AI</h2>
+    <p class="sec-sub">เครื่องมือ: Higgsfield AI (โมเดล nano_banana_pro) — โจทย์: ภาพประกอบหัวข้อ "นักเรียนกับ AI ผู้ช่วยเรียนรู้ตอนกลางคืน"</p>
+  </div>
+  <div class="flow">
+    <div>
+      <div class="step-label">Prompt แรก · Zero-shot</div>
+      <div class="prompt"><span class="tag">ครั้งแรก ถามสั้น ๆ</span>
+        <div class="who">ผู้ใช้ → AI</div>
+        <div class="txt">นักเรียนกำลังเรียนหนังสือด้วย AI</div>
+      </div>
+    </div>
+    <div class="result">
+      <h4>ผลลัพธ์แรก (zeroshot.png · nano_banana_pro 1k)</h4>
+      <div class="figure"><img src="assets/img/zeroshot-web.png" alt="ผลลัพธ์แรกจากพรอมป์สั้น"></div>
+      <p class="cap">ได้ "ห้องเรียนแห่งอนาคต" แบบทั่วไป — นักเรียนหลายคน ฉากกว้างจัด แสงสม่ำเสมอ
+      ตัวอักษรบนหน้าจอเพี้ยน และไม่ได้บรรยากาศ "ตอนกลางคืน" ตามที่คิดไว้ ภาพสวยแต่<b>ไม่ตรงโจทย์</b>และใช้ต่อไม่ได้จริง</p>
+    </div>
+    <div>
+      <div class="step-label">ถาม–ตอบ เพื่อปรับพรอมป์</div>
+      <div class="dialog">
+        <div class="bubble me"><span class="who">ฉัน</span>ภาพออกมาเป็นห้องเรียนทั่วไปเกินไป อยากได้บรรยากาศกลางคืน คนเดียว เงียบ ๆ จะเขียนยังไง?</div>
+        <div class="bubble ai"><span class="who">AI</span>ลองระบุ <b>เวลา/แสง</b> (กลางคืน โคมไฟอุ่น) <b>จำนวนคน</b> (นักเรียน 1 คน) และ <b>อารมณ์ภาพ</b> (เงียบสงบ โฟกัส)</div>
+        <div class="bubble me"><span class="who">ฉัน</span>อยากให้เห็นชัดว่า AI ช่วยเรียน ต้องใส่อะไรเพิ่ม?</div>
+        <div class="bubble ai"><span class="who">AI</span>ระบุ <b>องค์ประกอบ AI</b> เช่น แผงโฮโลแกรมลอยเหนือแล็ปท็อป แสดงกราฟ/อนุภาคความรู้ — และควรเขียนพรอมป์เป็น<b>ภาษาอังกฤษ</b>เพราะโมเดลภาพเข้าใจคำศัพท์ภาพ (lighting, composition) แม่นกว่า</div>
+        <div class="bubble me"><span class="who">ฉัน</span>จะกันภาพเสีย เช่น ตัวหนังสือเพี้ยน ลายน้ำ ต้องใส่อะไร?</div>
+        <div class="bubble ai"><span class="who">AI</span>ปิดท้ายด้วย <b>ข้อจำกัดเชิงลบ</b>: no text, no watermark และกำหนดอัตราส่วน 16:9 พร้อมพื้นที่ว่างด้านขวาไว้ใส่หัวข้อ</div>
+      </div>
+    </div>
+    <div>
+      <div class="step-label v2">Prompt ใหม่ · Few-shot</div>
+      <div class="prompt v2"><span class="tag">เพิ่มบทบาท+บริบท+รูปแบบ+ข้อจำกัด</span>
+        <div class="who">ผู้ใช้ → AI (สังเคราะห์จากบทสนทนา)</div>
+        <div class="txt">Cinematic photorealistic scene of a Thai high school student studying at a wooden desk in a dark bedroom at night, warm amber desk lamp glow on the left side, a translucent glowing holographic AI assistant interface floating above the laptop showing charts and knowledge particles, deep indigo blue shadows, subtle film grain, wide 16:9 composition with generous negative space on the right side, no text, no watermark</div>
+      </div>
+    </div>
+    <div class="result">
+      <h4>ผลลัพธ์ใหม่ (fewshot.png · nano_banana_pro 2k)</h4>
+      <div class="figure"><img src="assets/img/fewshot-web.png" alt="ผลลัพธ์ใหม่จากพรอมป์โครงสร้าง"></div>
+      <p class="cap">ได้ฉากตรงคอนเซปต์: นักเรียนคนเดียวยามค่ำคืน โคมไฟอุ่นซ้ายภาพ โฮโลแกรม AI ลอยเหนือแล็ปท็อป
+      เงาน้ำเงินเข้ม และเว้นพื้นที่ว่างขวาไว้ใส่หัวข้อ — ใช้เป็นภาพฮีโร่ของเว็บ/สไลด์ได้ทันที</p>
+    </div>
+    <div class="reflect">
+      <h3>สะท้อนการเรียนรู้ · แง่ที่ 1</h3>
+      <ul>
+        <li>พรอมป์ภาษาไทยสั้น ๆ ให้ "ความหมาย" แต่ไม่ให้ "ภาพ" — โมเดลต้องเดาทุกอย่าง (กี่คน ที่ไหน แสงอะไร) จึงได้ภาพแบบทั่วไปที่ใครก็ใช้ได้ แต่ไม่ใช่ของเรา</li>
+        <li>โครงสร้าง <b>subject → scene → lighting → composition → constraints</b> ทำให้คุมผลลัพธ์ได้เกือบทั้งหมด และเปลี่ยนภาษาเป็นอังกฤษเพื่อความแม่นของคำศัพท์ภาพ</li>
+        <li>ข้อจำกัดเชิงลบ (no text, no watermark) คือ "กันเหนียว" ที่ประหยัดเวลาแก้ภาพเสียรอบสอง</li>
+        <li>เศรษฐศาสตร์ของพรอมป์: รอบแรกใช้ความละเอียดต่ำ (1k) ทดสอบไอเดีย รอบสองค่อยขยับ 2k — จ่ายเครดิตเฉพาะตอนมั่นใจ</li>
+      </ul>
+      <div class="vs">
+        <div><b style="color:var(--muted)">ผลแรก</b><br>ห้องเรียนทั่วไป · ตัวอักษรเพี้ยน · ใช้งานจริงไม่ได้</div>
+        <div><b style="color:var(--green)">ผลใหม่</b><br>ตรงคอนเซปต์ · แสง/มุมคุมได้ · พร้อมใช้เป็นภาพหลักทันที</div>
+      </div>
+    </div>
+    <div class="btnrow">
+      <a class="btn" href="assets/img/fewshot.png" target="_blank">ดูภาพเต็มความละเอียด</a>
+      <a class="btn ghost" href="assets/img/zeroshot.png" target="_blank">เปรียบเทียบภาพแรก</a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= S2 DESMOS ================= -->
+<section class="page" id="s2">
+  <div class="sec-head">
+    <div class="no">แง่ที่ 2 / 6</div>
+    <h2>กราฟอธิบายความสัมพันธ์ทางคณิตศาสตร์</h2>
+    <p class="sec-sub">เครื่องมือ: Desmos — โจทย์: สื่อสาร "เส้นโค้งการลืม" ของนักเรียนเป็นกราฟที่เลื่อนดูค่าได้</p>
+  </div>
+  <div class="flow">
+    <div>
+      <div class="step-label">Prompt แรก · Zero-shot</div>
+      <div class="prompt"><span class="tag">ขอกราฟเดี่ยว</span>
+        <div class="who">ผู้ใช้ → AI</div>
+        <div class="txt">สร้างกราฟ y = sin x</div>
+      </div>
+    </div>
+    <div class="result">
+      <h4>ผลลัพธ์แรก — นิพจน์เดียว กราฟเส้นเดียว</h4>
+      <div class="figure"><img src="assets/desmos/desmos-v1.png" alt="กราฟ sin x บน Desmos"></div>
+      <p class="cap">พิมพ์ <code class="inline">y=sin x</code> ใน Desmos ก็ได้กราฟสวย ๆ หนึ่งเส้น — แต่<b>ไม่ได้สื่อสารอะไรเลย</b>
+      ไม่มีพารามิเตอร์ให้ลอง ไม่มีจุดเปรียบเทียบ และไม่เกี่ยวกับโจทย์ "ความสัมพันธ์ทางคณิตศาสตร์" ของเรื่องที่สนใจ</p>
+    </div>
+    <div>
+      <div class="step-label">ถาม–ตอบ เพื่อปรับพรอมป์</div>
+      <div class="dialog">
+        <div class="bubble me"><span class="who">ฉัน</span>อยากได้กราฟที่สื่อ "การลืมบทเรียน" ของนักเรียนตามทฤษฎี Ebbinghaus ต้องใช้สมการอะไร?</div>
+        <div class="bubble ai"><span class="who">AI</span>ใช้ R(t) = A·e^(−t/S) โดย A คือความจำตอนเรียนจบ (100%) และ S คือความแข็งแรงของความจำเป็นวัน — ยิ่งทบทวน S ยิ่งใหญ่ กราฟยิ่งลดช้า</div>
+        <div class="bubble me"><span class="who">ฉัน</span>อยากให้เพื่อนลองเลื่อนค่าดูเองได้ ต้องพิมพ์ยังไงใน Desmos?</div>
+        <div class="bubble ai"><span class="who">AI</span>พิมพ์ <code class="inline">A=100</code> และ <code class="inline">S=7</code> ก่อน — Desmos จะสร้าง slider อัตโนมัติ แล้วค่อยนิยามฟังก์ชัน R(t) ที่ใช้ตัวแปรทั้งสอง</div>
+        <div class="bubble me"><span class="who">ฉัน</span>แล้วจะชี้ว่า "ต่ำกว่า 50% = วิกฤต" ล่ะ?</div>
+        <div class="bubble ai"><span class="who">AI</span>เพิ่มเส้นอ้างอิง <code class="inline">y=50</code> อีกบรรทัด จะเห็นจุดตัด = จำนวนวันก่อนความจำหลุดครึ่งหนึ่ง</div>
+      </div>
+    </div>
+    <div>
+      <div class="step-label v2">Prompt ใหม่ · Few-shot</div>
+      <div class="prompt v2"><span class="tag">สมการ+พารามิเตอร์+เป้าหมาย</span>
+        <div class="who">ผู้ใช้ → AI</div>
+        <div class="txt">สร้างกราฟเส้นโค้งการลืมของ Ebbinghaus ใน Desmos:
+R(t) = A·e^(−t/S) โดยกำหนด slider A=100 (ความจำเริ่มต้น %)
+และ slider S=7 (ความแข็งแรงของความจำ หน่วยวัน)
+เพิ่มเส้น y=50 เป็นเส้นวิกฤตการลืม ให้นักเรียนลื่น slider S
+เพื่อดูว่าการทบทวนทำให้กราฟลดช้าลงเพียงใด</div>
+      </div>
+    </div>
+    <div class="result">
+      <h4>ผลลัพธ์ใหม่ — กราฟเชิงโต้ตอบพร้อม slider 2 ตัวและเส้นวิกฤต</h4>
+      <div class="figure"><img src="assets/desmos/desmos-v2.png" alt="กราฟเส้นโค้งการลืมพร้อม slider"></div>
+      <p class="cap">นิพจน์ที่ใช้ (ลองพิมพ์ตามใน <a href="https://www.desmos.com/calculator?lang=th" target="_blank">desmos.com/calculator</a>):</p>
+      <div class="code">A = 100        ← slider ความจำเริ่มต้น (%)
+S = 7          ← slider ความแข็งแรงของความจำ (วัน)
+R(t) = A·e^(−t/S)
+y = 50         ← เส้นวิกฤตการลืม</div>
+      <p class="cap">ตอนนี้กราฟ<b>เล่าเรื่องได้</b>: ถ้าไม่ทบทวน (S เล็ก) ความจำตกผ่านเส้น 50% ในไม่กี่วัน
+      แต่ถ้าทบทวนทำให้ S ใหญ่ขึ้น เส้นโค้งแบนลงอย่างเห็นได้ชัด — เหมาะไปสอนต่อทันที</p>
+    </div>
+    <div class="reflect">
+      <h3>สะท้อนการเรียนรู้ · แง่ที่ 2</h3>
+      <ul>
+        <li>ความต่างไม่ได้อยู่ที่ "กราฟสวยขึ้น" แต่อยู่ที่<b>เป้าหมายของกราฟ</b> — พรอมป์แรกไม่ได้บอกว่าจะสื่อสารอะไร จึงได้กราฟที่ "ถูกต้องแต่ไร้ความหมาย"</li>
+        <li>การระบุ<b>พารามิเตอร์เป็นตัวแปร (A, S)</b> เปลี่ยนภาพนิ่งให้เป็นเครื่องมือสำรวจ — ผู้เรียนได้ "เล่น" กับคณิตศาสตร์ ไม่ใช่แค่ดู</li>
+        <li>เส้นอ้างอิงเพียงเส้นเดียว (y=50) ทำให้กราฟมี "ประเด็น" ทันที — รายละเอียดเล็ก ๆ ที่เกิดจากการถามต่อ</li>
+        <li>คำถามชี้นำ (จะทำให้ลื่นดูเองได้ไหม?) คือหัวใจของ few-shot — เราถามจนได้คำตอบที่เป็น "เครื่องมือ" ไม่ใช่ "คำตอบ"</li>
+      </ul>
+      <div class="vs">
+        <div><b style="color:var(--muted)">ผลแรก</b><br>เส้นโค้งเดียว · ดูแล้วจบ · ไม่มีบริบท</div>
+        <div><b style="color:var(--green)">ผลใหม่</b><br>slider โต้ตอบ · มีเส้นวิกฤต · ใช้สอนได้จริง</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= S3 MERMAID ================= -->
+<section class="page" id="s3">
+  <div class="sec-head">
+    <div class="no">แง่ที่ 3 / 6</div>
+    <h2>การสร้าง Diagrams จาก Mermaid</h2>
+    <p class="sec-sub">เครื่องมือ: Mermaid — โจทย์: ไดอะแกรมสรุป "วงจรพัฒนาพรอมป์" ที่เป็นแกนของการบ้านทั้งชิ้น</p>
+  </div>
+  <div class="flow">
+    <div>
+      <div class="step-label">Prompt แรก · Zero-shot</div>
+      <div class="prompt"><span class="tag">บอกแค่หัวข้อ</span>
+        <div class="who">ผู้ใช้ → AI</div>
+        <div class="txt">เขียน mermaid diagram แสดงการพัฒนา prompt</div>
+      </div>
+    </div>
+    <div class="result">
+      <h4>ผลลัพธ์แรก — กล่อง 4 ใบธรรมดา</h4>
+      <div class="figure"><img src="assets/mermaid/v1-zeroshot.png" alt="ไดอะแกรมพื้นฐาน"></div>
+      <p class="cap">ได้ loop "เขียน → ผลลัพธ์ → พอใจไหม" ซึ่ง<b>ถูกต้องแต่ว่างเปล่า</b> — ไม่แสดงความต่างระหว่างรอบแรกกับรอบปรับปรุง
+      ไม่มีสี ไม่มีกลุ่ม ใช้ประกอบการสอนไม่ได้</p>
+    </div>
+    <div>
+      <div class="step-label">ถาม–ตอบ เพื่อปรับพรอมป์</div>
+      <div class="dialog">
+        <div class="bubble me"><span class="who">ฉัน</span>อยากให้เห็นชัดว่ามี 2 รอบ — รอบ zero-shot กับรอบ few-shot ต้องใช้ syntax อะไร?</div>
+        <div class="bubble ai"><span class="who">AI</span>ใช้ <code class="inline">subgraph</code> ครอบแต่ละรอบ พร้อมตั้งชื่อกลุ่ม เช่น "รอบที่ 1 · Zero-shot"</div>
+        <div class="bubble me"><span class="who">ฉัน</span>ทำให้แยกสีตามช่วงได้ไหม และตรงกลางคืออะไรที่เชื่อมสองรอบ?</div>
+        <div class="bubble ai"><span class="who">AI</span>ใช้ <code class="inline">classDef</code> กำหนดสีกล่องแยก zero / few / กระบวนการ และเพิ่มกล่อง "ถาม–ตอบเพื่อปรับ prompt" เป็นสะพานเชื่อม ปิดท้ายด้วยจุดตัดสินใจ "ตรงกับเป้าหมายไหม"</div>
+      </div>
+    </div>
+    <div>
+      <div class="step-label v2">Prompt ใหม่ · Few-shot</div>
+      <div class="prompt v2"><span class="tag">กำหนด syntax+โครงสร้าง+สี</span>
+        <div class="who">ผู้ใช้ → AI</div>
+        <div class="txt">สร้าง mermaid flowchart (ทิศ TD) แสดงวงจรพัฒนา prompt:
+(1) subgraph "รอบที่ 1 · Zero-shot" มีกล่องพรอมป์แรก→ผลลัพธ์ v1
+(2) กล่อง "ถาม–ตอบเพื่อปรับ prompt" และ "สังเคราะห์ prompt ใหม่"
+(3) subgraph "รอบที่ 2 · Few-shot" มี prompt ใหม่→ผลลัพธ์ v2
+(4) จุดตัดสินใจ "ตรงกับเป้าหมายไหม" ถ้าไม่ตรงวนกลับไว้ถาม–ตอบ ถ้าตรงไป "สะท้อนการเรียนรู้"
+ใช้ classDef สี 3 ชุด: น้ำเงินเข้ม=zero, น้ำตาลทอง=few, เขียว=กระบวนการ ข้อความไทยทั้งหมด</div>
+      </div>
+    </div>
+    <div class="result">
+      <h4>ผลลัพธ์ใหม่ — วงจร 2 รอบพร้อมสีและเงื่อนไข</h4>
+      <div class="figure"><img src="assets/mermaid/v2-fewshot.png" alt="ไดอะแกรมวงจรพัฒนา prompt 2 รอบ"></div>
+      <p class="cap">โค้ด mermaid (นำไปวางที่ <a href="https://mermaid.live" target="_blank">mermaid.live</a> หรือ mermaid.ai ได้ทันที):</p>
+      <div class="code">flowchart TD
+    subgraph S1["รอบที่ 1 · Zero-shot"]
+        A["เขียน Prompt แรก<br/>(สั้น · กว้าง · ไม่ระบุบริบท)"] --> B["ผลลัพธ์ v1<br/>(ใช้ได้บางส่วน)"]
+    end
+    B --> R["ถาม–ตอบเพื่อปรับ prompt"]
+    R --> P["สังเคราะห์ Prompt ใหม่ (Few-shot)"]
+    subgraph S2["รอบที่ 2 · Few-shot"]
+        P --> Q["ผลลัพธ์ v2<br/>(ตรงเป้า · ใช้งานได้)"]
+    end
+    Q --> V{"ตรวจกับเป้าหมาย"}
+    V -->|ยังไม่ตรง| R
+    V -->|ตรง| F["สะท้อนการเรียนรู้"]
+    classDef zero fill:#312e81,stroke:#818cf8,color:#e0e7ff
+    classDef few fill:#78350f,stroke:#fbbf24,color:#fef3c7
+    classDef proc fill:#14532d,stroke:#4ade80,color:#dcfce7
+    class A,B zero
+    class P,Q few
+    class R,V proc</div>
+    </div>
+    <div class="reflect">
+      <h3>สะท้อนการเรียนรู้ · แง่ที่ 3</h3>
+      <ul>
+        <li>ไดอะแกรมต้องการ<b>ข้อความที่คม</b>ก่อน syntax — พรอมป์แรกให้หัวข้อแต่ไม่ให้ "โครงเรื่อง" ผลลัพธ์จึงเป็น generic loop ที่ใครก็เขียนได้</li>
+        <li>การระบุคำสั่งเฉพาะของเครื่องมือ (subgraph, classDef, TD) คือ few-shot ในเชิงเทคนิค — ยิ่งรู้ "คำ" ของเครื่องมือมากเท่าไหร่ ยิ่งคุมผลลัพธ์ได้มากขึ้นเท่านั้น</li>
+        <li>สีไม่ใช่การตกแต่ง แต่คือ <b>ชั้นข้อมูล</b>: ฟ้า=รอบแรก ทอง=รอบสอง เขียว=กระบวนการ อ่านเข้าใจใน 3 วินาทีโดยไม่ต้องอ่านทุกกล่อง</li>
+      </ul>
+      <div class="vs">
+        <div><b style="color:var(--muted)">ผลแรก</b><br>4 กล่อง · ไม่มีบริบท · จำยาก</div>
+        <div><b style="color:var(--green)">ผลใหม่</b><br>2 รอบชัดเจน · สีแยกชั้นความหมาย · ใช้สอนได้</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= S4 LATEX ================= -->
+<section class="page" id="s4">
+  <div class="sec-head">
+    <div class="no">แง่ที่ 4 / 6</div>
+    <h2>การสร้างบทความจาก LaTeX</h2>
+    <p class="sec-sub">เครื่องมือ: LaTeX (คอมไพล์ด้วย Tectonic/XeLaTeX ตามหลักเดียวกับ Overleaf) — โจทย์: บทความสรุปบทเรียนสัปดาห์นี้</p>
+  </div>
+  <div class="flow">
+    <div>
+      <div class="step-label">Prompt แรก · Zero-shot</div>
+      <div class="prompt"><span class="tag">บอกแค่ 'เขียนบทความ'</span>
+        <div class="who">ผู้ใช้ → AI</div>
+        <div class="txt">เขียนบทความเรื่อง prompt engineering ด้วย latex</div>
+      </div>
+    </div>
+    <div class="result">
+      <h4>ผลลัพธ์แรก (v1-zeroshot.pdf · 1 หน้า)</h4>
+      <div class="figure"><img src="assets/latex/v1-page1.png" alt="บทความ LaTeX แบบทั่วไป"></div>
+      <p class="cap">ได้เทมเพลตภาษาอังกฤษสามย่อหน้า พื้น ๆ — ประโยคสั้น ไม่มีตาราง ไม่มีสมการ
+      <b>ไม่มีภาษาไทย</b> (เพราะไม่ได้ระบุ และไม่มีการตั้งค่าฟอนต์ไทย) ใช้ส่งงานจริงไม่ได้</p>
+      <div class="btnrow"><a class="btn ghost" href="assets/latex/v1-zeroshot.pdf" target="_blank">เปิด PDF แรก</a></div>
+    </div>
+    <div>
+      <div class="step-label">ถาม–ตอบ เพื่อปรับพรอมป์</div>
+      <div class="dialog">
+        <div class="bubble me"><span class="who">ฉัน</span>อยากได้บทความภาษาไทย LaTeX ต้องตั้งค่ายังไง?</div>
+        <div class="bubble ai"><span class="who">AI</span>ต้องคอมไพล์ด้วย XeLaTeX ใช้ <code class="inline">fontspec</code> ตั้งฟอนต์ไทย (เช่น Thonburi/Sarabun) และเปิด <code class="inline">\XeTeXlinebreaklocale "th"</code> เพื่อตัดคำไทยให้ถูกต้อง</div>
+        <div class="bubble me"><span class="who">ฉัน</span>อยากให้เนื้อหาลึกและเป็นระบบ ควรกำหนดโครงเรื่องอย่างไร?</div>
+        <div class="bubble ai"><span class="who">AI</span>กำหนดโครง: บทนำ → กรอบการวิเคราะห์ (พร้อมสมการคณิตศาสตร์) → ตารางเปรียบเทียบ 6 แง่ → ข้อเสนอแนะ → บทสรุป และระบุผู้อ่าน/บริบทวิชา</div>
+        <div class="bubble me"><span class="who">ฉัน</span>อยากมีตารางเทียบ zero-shot กับ few-shot ที่ทำจริงในการบ้านด้วย</div>
+        <div class="bubble ai"><span class="who">AI</span>ใช้ <code class="inline">booktabs</code> สร้างตาราง 3 เส้น (toprule/midrule/bottomrule) เทียบทั้ง 6 แง่ พร้อมคอลัมน์ "การปรับที่สำคัญ"</div>
+      </div>
+    </div>
+    <div>
+      <div class="step-label v2">Prompt ใหม่ · Few-shot</div>
+      <div class="prompt v2"><span class="tag">โครงเรื่อง+ภาษา+สมการ+ตาราง</span>
+        <div class="who">ผู้ใช้ → AI</div>
+        <div class="txt">เขียนบทความวิชาการภาษาไทยด้วย LaTeX (XeLaTeX + fontspec ฟอนต์ Thonburi + ตัดคำไทย)
+ชื่อเรื่อง "พลังของ Prompt: จาก Zero-shot สู่ Few-shot"
+ผู้อ่าน: นักศึษาวิศวคอม รายวิชา GenAI 1
+โครงเรื่อง: บทคัดย่อ → บทนำ → กรอบการวิเคราะห์ (มีสมการ Qn = Q0(1+α)^n) →
+ตาราง booktabs เปรียบเทียบผล 6 แง่ (ภาพ/กราฟ/ไดอะแกรม/LaTeX/สไลด์/เว็บ)
+→ ข้อเสนอแนะ (itemize) → บทสรุป เนื้อหาต้องอ้างอิงผลการทดลองจริงของการบ้าน</div>
+      </div>
+    </div>
+    <div class="result">
+      <h4>ผลลัพธ์ใหม่ (v2-fewshot.pdf · บทความไทย 2 หน้า สมการ+ตาราง)</h4>
+      <div class="two">
+        <div class="figure"><img src="assets/latex/v2-page1.png" alt="หน้าแรกบทความไทย"></div>
+        <div class="figure"><img src="assets/latex/v2-page2.png" alt="หน้าตารางเปรียบเทียบ"></div>
+      </div>
+      <p class="cap">บทความครบองค์ประกอบ: บทคัดย่อ สมการเชิงประจักษ์ ตารางเปรียบเทียบ 6 แง่จากงานจริง
+      และข้อเสนอแนะ — คอมไพล์ผ่านด้วย Tectonic (XeLaTeX) ฟอนต์ไทยตัดคำถูกต้อง</p>
+      <div class="btnrow">
+        <a class="btn" href="assets/latex/v2-fewshot.pdf" target="_blank">เปิด PDF ฉบับเต็ม</a>
+        <a class="btn ghost" href="assets/latex/v2-fewshot.tex" target="_blank">ดูโค้ด .tex</a>
+      </div>
+    </div>
+    <div class="reflect">
+      <h3>สะท้อนการเรียนรู้ · แง่ที่ 4</h3>
+      <ul>
+        <li>LaTeX มี "กับดักภาษา" — ไม่ระบุ engine/ฟอนต์ ก็ได้เอกสารที่ภาษาไทยพังทั้งหมด; พรอมป์ที่ดีต้องรู้จุดวิกฤตของเครื่องมือ (XeLaTeX + fontspec + linebreak)</li>
+        <li>การกำหนด<b>โครงเรื่องล่วงหน้า</b>ในพรอมป์ เปลี่ยนผลลัพธ์จาก "เทมเพลต" เป็น "บทความ" — เนื้อหาถูกจัดวางตามตรรกะวิชาการโดยไม่ต้องเขียนเองใหม่ทั้งหมด</li>
+        <li>ตารางที่ขอเฉพาะ (booktabs, 3 เส้น) ทำให้เอกสารดูเป็นวารสารจริง — รายละเอียดเชิงเทคนิคที่ได้มาจากการถามต่อ</li>
+      </ul>
+      <div class="vs">
+        <div><b style="color:var(--muted)">ผลแรก</b><br>อังกฤษ 3 ย่อหน้า · ไม่มีโครงเรื่อง · ใช้ส่งไม่ได้</div>
+        <div><b style="color:var(--green)">ผลใหม่</b><br>ไทยเต็มรูปแบบ · สมการ+ตาราง · ระดับส่งได้</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= S5 NOTEBOOKLM ================= -->
+<section class="page" id="s5">
+  <div class="sec-head">
+    <div class="no">แง่ที่ 5 / 6</div>
+    <h2>สร้างสไลด์สรุปงานด้วย NotebookLM</h2>
+    <p class="sec-sub">เครื่องมือ: NotebookLM — โจทย์: สรุปสไลด์เรียน Week 4 "พลังของ Prompt" (42 หน้า) ให้นักศึกษาทบทวนได้ใน 5 นาที</p>
+  </div>
+  <div class="flow">
+    <div>
+      <div class="step-label">Prompt แรก · Zero-shot</div>
+      <div class="prompt"><span class="tag">อัปโหลด PDF แล้วสั่งสั้น ๆ</span>
+        <div class="who">ผู้ใช้ → NotebookLM (หลังอัปโหลด Week4.pdf)</div>
+        <div class="txt">สรุปไฟล์นี้เป็นสไลด์</div>
+      </div>
+    </div>
+    <div class="result">
+      <h4>ผลลัพธ์แรก — สรุปย่อแบบข้อความ</h4>
+      <div class="prompt" style="border-left-color:var(--indigo)">
+        <div class="txt" style="font-size:.95rem;color:var(--muted)">"เอกสารนี้กล่าวถึง prompt คือคำสั่งที่ให้กับ AI…
+มีเทคนิคต่าง ๆ เช่น zero-shot few-shot…
+สรุปได้ว่า prompt ที่ดีช่วยให้ AI ตอบตรงความต้องการ…"</div>
+      </div>
+      <p class="cap">NotebookLM ตอบกลับมาเป็น<b>ย่อหน้าข้อความ</b> ไม่ใช่สไลด์ — เพราะคำสั่งไม่ได้ระบุจำนวนหน้า โครงเรื่อง
+      กลุ่มเป้าหมาย และรูปแบบการนำเสนอ ต้องคัดลอกไปจัดรูปเองอีกยาว</p>
+    </div>
+    <div>
+      <div class="step-label">ถาม–ตอบ เพื่อปรับพรอมป์</div>
+      <div class="dialog">
+        <div class="bubble me"><span class="who">ฉัน</span>อยากได้สไลด์ที่นักศึกษาใช้ทบทวนก่อนสอบ ควรกำหนดอะไรบ้าง?</div>
+        <div class="bubble ai"><span class="who">AI</span>ระบุ <b>จำนวนสไลด์</b> (10 หน้า) <b>โครงเรื่อง</b> (นิยาม → เทคนิคหลัก → โครงสร้าง RGC → เทคนิค Inception → สรุป) และ<b>รูปแบบหน้าละ 3 bullet</b></div>
+        <div class="bubble me"><span class="who">ฉัน</span>อยากให้เน้นคำศัพท์สำคัญที่อาจออกข้อสอบ ทำได้ไหม?</div>
+        <div class="bubble ai"><span class="who">AI</span>ได้ — เพิ่มเงื่อนไข "ทุกสไลด์ต้องมีคำศัพท์สำคัญเป็นตัวหนา และสไลด์สุดท้ายรวมคำศัพท์+ตัวย่อทั้งหมดเป็นตาราง"</div>
+      </div>
+    </div>
+    <div>
+      <div class="step-label v2">Prompt ใหม่ · Few-shot</div>
+      <div class="prompt v2"><span class="tag">บทบาท+โครง+รูปแบบ+คำศัพท์</span>
+        <div class="who">ผู้ใช้ → NotebookLM</div>
+        <div class="txt">คุณเป็นผู้ช่วยสอนรายวิชา GenAI 1 จงสรุปเอกสาร Week 4 "พลังของ Prompt"
+เป็นสไลด์ทบทวน 10 หน้าสำหรับนักศึกษาก่อนสอบ ภาษาไทย โครงเรื่อง:
+(1) นิยาม prompt และทำไมสำคัญ (2) AI เข้าใจภาษาอย่างไร (3) Zero/One/Few-shot
+(4) เทคนิค Role–Goal–Context (5) เทคนิคเสริม: Priming, Chain of Thought
+(6) Prompt Inception (7–9) ตัวอย่างการใช้จริง (10) สรุป+ตารางคำศัพท์
+ทุกหน้ามีหัวข้อ + bullet ไม่เกิน 3 ข้อ คำศัพท์สำคัญเป็นตัวหนา</div>
+      </div>
+    </div>
+    <div class="result">
+      <h4>ผลลัพธ์ใหม่ — สไลด์ทบทวน 10 หน้า จากพรอมป์ v2</h4>
+      <iframe class="deck" src="slides.html" title="สไลด์สรุป Week 4"></iframe>
+      <p class="cap">สไลด์สรุปที่สร้างตามพรอมป์รอบสอง (เปิดเต็มจอได้ในปุ่มด้านล่าง) —
+      ทำซ้ำใน NotebookLM จริงได้ใน 5 นาทีตามขั้นตอน:
+      <b>①</b> ไปที่ <a href="https://notebook.google" target="_blank">notebook.google</a> → สร้าง Notebook ใหม่
+      <b>②</b> อัปโหลดไฟล์ Week4 PDF เป็นแหล่งข้อมูล
+      <b>③</b> วางพรอมป์รอบแรก ดูผล <b>④</b> วางพรอมป์รอบสอง (ด้านบน)
+      <b>⑤</b> กดสร้าง Brief/Presentation แล้วบันทึกผลลัพธ์</p>
+      <div class="btnrow"><a class="btn" href="slides.html" target="_blank">เปิดสไลด์เต็มหน้าจอ</a></div>
+    </div>
+    <div class="reflect">
+      <h3>สะท้อนการเรียนรู้ · แง่ที่ 5</h3>
+      <ul>
+        <li>เครื่องมือสรุปเอกสารมี "ค่าเริ่มต้น" ของมันเอง — ถ้าไม่ระบุรูปแบบ จะได้ข้อความย่อ ไม่ใช่สื่อการสอน; การระบุ <b>รูปแบบผลลัพธ์</b> (สไลด์ 10 หน้า หน้าละ 3 bullet) คือสิ่งที่เปลี่ยนชนิดของผลลัพธ์</li>
+        <li>การให้<b>โครงเรื่องเจาะจงถึงหน้า</b> ทำให้สไลด์เรียงตามลำดับการสอนจริง ไม่ตามลำดับที่โมเดลสุ่ม</li>
+        <li>เงื่อนไขเล็ก ๆ ("คำศัพท์สำคัญตัวหนา + ตารางท้ายเล่ม") คือสิ่งที่ทำให้ผลงานเหมาะกับผู้ใช้จริง — นักศึกษาก่อนสอบ</li>
+      </ul>
+      <div class="vs">
+        <div><b style="color:var(--muted)">ผลแรก</b><br>ย่อหน้าข้อความ · ต้องจัดรูปเองใหม่</div>
+        <div><b style="color:var(--green)">ผลใหม่</b><br>สไลด์ 10 หน้าพร้อมใช้ · โครงตามหลักการสอน</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= S6 WEBSITE ================= -->
+<section class="page" id="s6">
+  <div class="sec-head">
+    <div class="no">แง่ที่ 6 / 6 · พร้อมโบนัสพิเศษ</div>
+    <h2>เขียนเว็บไซต์ฝากบน GitHub</h2>
+    <p class="sec-sub">เครื่องมือ: HTML/CSS/JS + GitHub Pages — เว็บที่กำลังอ่านอยู่นี้คือผลลัพธ์ของแง่นี้เอง</p>
+  </div>
+  <div class="flow">
+    <div>
+      <div class="step-label">Prompt แรก · Zero-shot</div>
+      <div class="prompt"><span class="tag">ขอแค่ 'เว็บสรุปงาน'</span>
+        <div class="who">ผู้ใช้ → AI</div>
+        <div class="txt">ทำเว็บไซต์สรุปงานการบ้าน</div>
+      </div>
+    </div>
+    <div class="result">
+      <h4>ผลลัพธ์แรก — หน้าเดียวเลื่อนยาว</h4>
+      <div class="prompt" style="border-left-color:var(--indigo)">
+        <div class="txt" style="font-size:.95rem;color:var(--muted)">ได้ HTML หน้าเดียว งานทั้ง 6 แง่เรียงต่อกันเป็นแถบยาว
+ไม่มีเมนู ไม่มีแยกหมวด อ่านบนมือถือลำบาก และไม่มีธีมที่เชื่อมโยงกับงานแต่ละแง่</div>
+      </div>
+      <p class="cap">โครงสร้าง "หน้าเดียวยาว" ทำให้<b>ผู้อ่านหลงทาง</b> — อาจารย์ที่ต้องตรวจงาน 6 แง่
+      ควรคลิกเลือกแง่ที่ต้องการดูได้ทันทีจากเมนูด้านบน</p>
+    </div>
+    <div>
+      <div class="step-label">ถาม–ตอบ เพื่อปรับพรอมป์</div>
+      <div class="dialog">
+        <div class="bubble me"><span class="who">ฉัน</span>อยากให้อาจารย์เลือกดูทีละแง่ได้ง่าย ๆ ต้องออกแบบนำทางยังไง?</div>
+        <div class="bubble ai"><span class="who">AI</span>ทำ<b>เมนูบนแบบเลือกหมวด</b> (tab navigation) 6 ปุ่มตาม 6 แง่ + หน้าแรก ใช้ hash routing เพื่อแชร์ลิงก์ตรงถึงแต่ละแง่ได้ (#s1…#s6)</div>
+        <div class="bubble me"><span class="who">ฉัน</span>อยากได้ธีมที่ต่อเนื่องกับงานและอ่านสบาย ทั้งจอคอมและมือถือ?</div>
+        <div class="bubble ai"><span class="who">AI</span>ใช้ธีมมืด indigo+ทองเดียวกับทั้งงาน ฟอนต์ Leelawadee UI/Noto Sans Thai, layout แบบ responsive (grid ยุบเป็นคอลัมน์เดียวบนมือถือ) และทุกแง่ใช้โครง "พรอมป์→ผล→ถามตอบ→พรอมป์ใหม่→ผล→สะท้อน" เหมือนกันหมด</div>
+        <div class="bubble me"><span class="who">ฉัน</span>ขึ้น GitHub Pages ยังไงให้เป็นลิงก์ที่เปิดได้เลย?</div>
+        <div class="bubble ai"><span class="who">AI</span>สร้าง repo ชื่อ genai-prompt-lab push โค้ดขึ้น main แล้วเปิด GitHub Pages ชี้ที่ branch main โฟลเดอร์ root — ได้ลิงก์ fiezdev.github.io/genai-prompt-lab</div>
+      </div>
+    </div>
+    <div>
+      <div class="step-label v2">Prompt ใหม่ · Few-shot</div>
+      <div class="prompt v2"><span class="tag">สถาปัตยกรรม+ธีม+responsive+deploy</span>
+        <div class="who">ผู้ใช้ → AI</div>
+        <div class="txt">สร้างเว็บไซต์การบ้าน "Prompt Lab" เป็น SPA หน้าเดียว:
+เมนูบนเลือกได้ 7 แท็บ (หน้าแรก + 6 แง่) ใช้ hash routing (#s1–#s6)
+ธีมมืด indigo/ทอง ฟอนต์ไทย Leelawadee UI + Noto Sans Thai
+ทุกแง่ใช้โครงเดียวกัน: พรอมป์แรก → ผลลัพธ์ (รูป/PDF/iframe จริง) →
+บทสนทนาถาม-ตอบ → พรอมป์ใหม่ → ผลลัพธ์ใหม่ → การ์ดสะท้อนการเรียนรู้
+responsive มือถือ เผยแพร่ด้วย GitHub Pages บน repo genai-prompt-lab</div>
+      </div>
+    </div>
+    <div class="result">
+      <h4>ผลลัพธ์ใหม่ — เว็บไซต์ที่กำลังดูอยู่</h4>
+      <div class="checklist">
+        <div class="check"><b>✓ เมนูบน 7 แท็บ</b><br>คลิกเลือกแง่ที่ 1–6 หรือกลับหน้าแรก พร้อมลิงก์ตรง (#s1–#s6) แชร์ต่อได้</div>
+        <div class="check"><b>✓ โครงเดียวกันทุกแง่</b><br>zero-shot → ผล → ถามตอบ → few-shot → ผล → สะท้อน หาอะไรก็เจอที่ตำแหน่งเดิม</div>
+        <div class="check"><b>✓ ผลงานจริงฝังในหน้า</b><br>ภาพ Higgsfield กราฟ Desmos ไดอะแกรม Mermaid PDF จาก LaTeX และสไลด์สรุป อยู่ครบในเว็บเดียว (โบนัส 1–5)</div>
+        <div class="check"><b>✓ GitHub Pages</b><br>repo: <a href="https://github.com/FiezDev/genai-prompt-lab" target="_blank">FiezDev/genai-prompt-lab</a></div>
+      </div>
+    </div>
+    <div class="reflect">
+      <h3>สะท้อนการเรียนรู้ · แง่ที่ 6 (และภาพรวมทั้งชิ้น)</h3>
+      <ul>
+        <li>เว็บคือ "สื่อ" ไม่ใช่ "เอกสาร" — พรอมป์แรกคิดถึงเนื้อหา แต่ลืม<b>ผู้อ่านและการนำทาง</b>; การระบุเมนู 6 หมวด + hash routing เกิดจากการคิดถึงอาจารย์ผู้ตรวจก่อน</li>
+        <li>ความต่อเนื่อง (ธีมเดียว โครงเดียว สีเดียว) ทำให้ 6 งานรวมเป็น "หนึ่งผลงาน" — ตรงตามเงื่อนไขโบนัสพอดี</li>
+        <li>เมื่อทำครบ 6 แง่ เราเห็นแบบแผนเดียวกันหมด: <b>zero-shot ได้ของทั่วไป — few-shot ได้ของของเรา</b> ไม่ว่าจะภาพ กราฟ ไดอะแกรม เอกสาร สไลด์ หรือเว็บ</li>
+      </ul>
+      <div class="vs">
+        <div><b style="color:var(--muted)">ผลแรก</b><br>หน้ายาวเดียว · หลงทาง · ไม่มีนำทาง</div>
+        <div><b style="color:var(--green)">ผลใหม่</b><br>7 แท็กเลือกได้ · responsive · ผลงานจริงครบ 6 แง่</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CANVA MCP GUIDE ================= -->
+<section class="page" id="guide">
+  <div class="sec-head">
+    <div class="no">คู่มือเสริม</div>
+    <h2>การใช้ Canva กับ Canva MCP</h2>
+    <p class="sec-sub">ครูแนะนำ Canva สำหรับแง่ที่ 1 — คู่มือนี้อธิบายวิธีต่อ Canva MCP เข้ากับ AI assistant เพื่อสั่งสร้างงานออกแบบด้วยภาษาธรรมชาติ</p>
+  </div>
+  <div class="flow">
+    <div class="result">
+      <h4>Canva MCP คืออะไร</h4>
+      <p style="color:var(--muted)">MCP (Model Context Protocol) คือมาตรฐานเปิดที่ให้ AI assistant เรียกใช้เครื่องมือภายนอกได้
+      Canva มี MCP Server ของตัวเอง เมื่อต่อแล้ว AI จะสร้าง/แก้/ค้นหา/ส่งออกงานในบัญชี Canva ของคุณได้โดยตรง
+      เช่น "สร้างโปสเตอร์ 9:16 ธีมกลางคืนสีทอง-น้ำเงิน แล้วส่งออกเป็น PNG"</p>
+      <div class="code">ตัวอย่างการตั้งค่า (Claude Desktop / ไคลเอนต์ที่รองรับ mcpServers):
+
+{
+  "mcpServers": {
+    "canva": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote@latest", "https://mcp.canva.com/mcp"]
+    }
+  }
+}</div>
+      <p class="cap">ขั้นตอนหลัก: ① ขอสิทธิ์ MCP ที่ canva.dev (รออนุมัติ) → ② เพิ่ม endpoint ข้างบนในไคลเอนต์ →
+      ③ ล็อกอิน Canva เพื่ออนุญาต (OAuth) → ④ ลองสั่ง "แสดงงานล่าสุดใน Canva ของฉัน"
+      ความสามารถ: สร้างดีไซน์จากข้อความ · แก้งานเดิม · ค้นหาเทมเพลต/อัปโหลด asset ·
+      ส่งออก PDF/PNG/JPG/PPTX/MP4 (resize เฉพาะ Pro)</p>
+      <div class="btnrow">
+        <a class="btn" href="canva-mcp-guide.html" target="_blank">เปิดคู่มือฉบับเต็ม</a>
+        <a class="btn ghost" href="https://www.canva.com/ai-connector/" target="_blank">Canva AI Connector (ทางการ)</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  ⚡ Prompt Lab — การบ้านวิชา GenAI 1 · แง่ที่ 1–6 พร้อมโบนัสเว็บไซต์บน GitHub Pages<br>
+  อิทธิพล วงศ์อภัย · 8 กันยายน 2569 · <a href="https://github.com/FiezDev/genai-prompt-lab" target="_blank">ดูซอร์สโค้ดบน GitHub</a>
+</footer>
+
+<div class="toast" id="toast">คัดลอกแล้ว</div>
+
+<script>
+const pages = document.querySelectorAll('section.page');
+const links = document.querySelectorAll('#nav a');
+function go(sec){
+  pages.forEach(p=>p.classList.toggle('show', p.id===sec));
+  links.forEach(a=>a.classList.toggle('active', a.dataset.sec===sec));
+  window.scrollTo({top:0});
+  if(history.replaceState) history.replaceState(null,'','#'+sec);
+}
+function route(){
+  const h=(location.hash||'#home').slice(1);
+  const valid=['home','s1','s2','s3','s4','s5','s6','guide'];
+  go(valid.includes(h)?h:'home');
+}
+links.forEach(a=>a.addEventListener('click',e=>{e.preventDefault();go(a.dataset.sec);}));
+window.addEventListener('hashchange',route);
+route();
+</script>
+</body>
+</html>
